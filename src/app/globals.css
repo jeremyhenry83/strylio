@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Styles personnalisés pour les formulaires */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  @apply border-gray-300 focus:border-strylio-purple focus:ring-strylio-purple;
+}
+
+/* Animation de transition pour les liens et boutons */
+a, button {
+  @apply transition-all duration-200;
+}
+
+/* Style pour les sections */
+section {
+  @apply py-12 md:py-24;
+}
+
+/* Style pour les titres */
+h1, h2, h3, h4, h5, h6 {
+  @apply tracking-tight;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -11,10 +50,6 @@
   --primary-accent: #e5c230;
   --foreground-accent: #454545;
   --hero-background: #F3F3F5;
-}
-
-html {
-  @apply scroll-smooth;
 }
 
 body {
