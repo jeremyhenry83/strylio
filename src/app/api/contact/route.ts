@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { Client } from '@notionhq/client';
+
+// Initialiser le client Notion
+const notion = new Client({
+  auth: process.env.NOTION_API_KEY,
+});
+
+const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
 export async function POST(req: Request) {
   try {
@@ -23,47 +30,49 @@ export async function POST(req: Request) {
       );
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+    // Créer une nouvelle page dans la base de données Notion
+    await notion.pages.create({
+      parent: {
+        database_id: DATABASE_ID!,
+      },
+      properties: {
+        Name: {
+          title: [
+            {
+              text: {
+                content: name,
+              },
+            },
+          ],
+        },
+        Email: {
+          email: email,
+        },
+        Message: {
+          rich_text: [
+            {
+              text: {
+                content: message,
+              },
+            },
+          ],
+        },
+        "Date de réception": {
+          date: {
+            start: new Date().toISOString(),
+          },
+        },
       },
     });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: "contact@strylio.com",
-      subject: `Nouveau message de ${name}`,
-      text: `
-Nom: ${name}
-Email: ${email}
-
-Message:
-${message}
-      `,
-      html: `
-<h2>Nouveau message de contact</h2>
-<p><strong>Nom:</strong> ${name}</p>
-<p><strong>Email:</strong> ${email}</p>
-<br>
-<p><strong>Message:</strong></p>
-<p>${message}</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
     return NextResponse.json(
-      { message: "Email envoyé avec succès" },
+      { message: "Message enregistré avec succès" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error);
+    console.error("Erreur lors de l'enregistrement du message:", error);
     return NextResponse.json(
-      { message: "Erreur lors de l'envoi de l'email" },
+      { message: "Erreur lors de l'enregistrement du message" },
       { status: 500 }
     );
   }
